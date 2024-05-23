@@ -1,6 +1,9 @@
 import datetime
 
 movimentacoes = []
+saques_diarios = 0
+limite_saques_dia = 3
+limite_valor_saque = 500
 
 def mostrar_extrato(movimentacoes):
     if movimentacoes:
@@ -15,6 +18,8 @@ def mostrar_saldo(saldo):
 
 def menu_inicial():
      saldo = 0
+     saques_diarios = 0
+     data_ultimo_saque = datetime.date.today()
     
      print("Banco BagDIO!")
 
@@ -39,18 +44,30 @@ def menu_inicial():
             except ValueError:
                 print("Por favor, insira um número válido.")
         elif operacao_selecionada == '3':
+            today = datetime.date.today()
+            if today != data_ultimo_saque:
+                saques_diarios = 0
+                data_ultimo_saque = today
+
+            if saques_diarios >= limite_saques_dia:
+                print("Você atingiu o limite de saques diários.")
+                continue
+
             valor_saque = input("Valor do saque: R$")
             try:
                 valor_saque = float(valor_saque)
-                if (valor_saque < saldo):
+                if valor_saque > limite_valor_saque:
+                    print(f"O limite por saque é de R${limite_valor_saque:.2f}. Tente novamente.")
+                elif valor_saque > saldo:
+                    print(f"Saldo insuficiente. Seu saldo é de R${saldo:.2f}.")
+                else:
                     saldo -= valor_saque
+                    saques_diarios += 1
                     now = datetime.datetime.now()
                     movimentacoes.append(f"-R${valor_saque:.2f} ({now.strftime('%d-%m-%Y %H:%M')})")
                     print(f"Operação realizada com sucesso. Seu saldo atual é R${saldo:.2f}.")
-                else:
-                    print(f"O valor de saldo é R${saldo:.2f}. Tente novamente.")
             except ValueError:
-                print("Por favor, insira um valor válido.")
+                print("Por favor, insira um número válido.")
         else:
             print("Opção inválida, tente novamente.")
 
